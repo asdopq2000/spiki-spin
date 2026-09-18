@@ -292,35 +292,28 @@ function playVoice(now) {
   if (!soundEnabled || drag || Math.abs(velocity) < 35) return;
   if (voicePlayed) return;
 
-  // 이번 회전에서는 한 번만 재생
   voicePlayed = true;
 
-  function speakOnce() {
-    if (!("speechSynthesis" in window)) return;
+  // 미리 로딩됐는지와 관계없이 터치 시점에 재생 요청
+  voice.currentTime = 0;
+  voice.playbackRate = 1;
+  voice.muted = false;
+  voice.volume = 1;
 
-    const utterance = new SpeechSynthesisUtterance(PHRASE);
-    utterance.lang = "ko-KR";
-    utterance.rate = 1.05;
-    speechSynthesis.speak(utterance);
-  }
+  voice.play().then(() => {
+    message("");
+  }).catch(error => {
+    // 다시 잡거나 정지해서 취소된 경우는 정상
+    if (error.name === "AbortError") return;
 
-  if (audioReady && !audioFailed) {
-    voice.currentTime = 0;
-    voice.playbackRate = Math.min(
-      1.5,
-      0.95 + Math.abs(velocity) / 4500
-    );
+    voicePlayed = false;
 
-    voice.play().catch(() => {
-      audioFailed = true;
-
-      if (soundEnabled && !drag && Math.abs(velocity) >= 35) {
-        speakOnce();
-      }
-    });
-  } else {
-    speakOnce();
-  }
+    if (error.name === "NotAllowedError") {
+      message("音声をOFF→ONにして、もう一度回してください。");
+    } else {
+      message("音声ファイルを再生できません: " + error.name);
+    }
+  });
 }
 
 function updateLightButton() {
@@ -628,7 +621,6 @@ angle %= 360;
       : "回す準備完了";
 
   if (Math.abs(velocity) < 35) silence();
-  else playVoice(now);
 
   drawLights(now);
   requestAnimationFrame(frame);
