@@ -245,6 +245,80 @@ voice.addEventListener("error", () => {
 });
 voice.src = "./voice.mp3";
 
+const AudioContextClass =
+  window.AudioContext || window.webkitAudioContext;
+
+const audioContext = new AudioContextClass();
+
+let activeSource = null;
+let soundGeneration = 0;
+let bufferedURL = "";
+let bufferPromise = null;
+
+// 음성을 미리 내려받고 재생 가능한 형태로 변환
+function prepareVoice() {
+  const url = voice.src;
+
+  if (bufferPromise && bufferedURL === url) {
+    return bufferPromise;
+  }
+
+  bufferedURL = url;
+
+  const pending = fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`음성 파일 HTTP ${response.status}`);
+      }
+      return response.arrayBuffer();
+    })
+    .then(data => audioContext.decodeAudioData(data));
+
+  bufferPromise = pending;
+
+  // 실패했다면 다음 조작에서 다시 시도할 수 있도록 함
+  pending.catch(() => {
+    if (bufferPromise === pending) {
+      bufferPromise = null;
+    }
+  });
+
+  return pending;
+}
+
+prepareVoice().catch(console.error);
+
+// 별도 버튼 대신 실제 터치·드래그·키보드 조작에서 활성화
+function activateAudio() {
+  if (!soundEnabled) return;
+
+  if (audioContext.state !== "running") {
+    audioContext.resume().catch(console.error);
+  }
+}
+
+document.addEventListener("pointerdown", activateAudio, {
+  capture: true,
+  passive: true
+});
+
+document.addEventListener("pointerup", activateAudio, {
+  capture: true,
+  passive: true
+});
+
+// iOS에서 손가락을 놓는 이벤트에서도 직접 활성화 요청
+document.addEventListener("touchend", activateAudio, {
+  capture: true,
+  passive: true
+});
+
+spinner.addEventListener("keydown", event => {
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    activateAudio();
+  }
+}, { capture: true });
+
 function message(text) { $("message").textContent = text; }
 
 character.onload = () => {
@@ -286,44 +360,86 @@ $("audioFile").onchange = event => {
 };
 
 function silence() {
+  // 로딩 중인 이전 재생 요청도 취소
+  soundGeneration++;
+
+  if (activeSource) {
+    activeSource.onended = null;
+
+    try {
+      activeSource.stop();
+    } catch {}
+
+    activeSource.disconnect();
+    activeSource = null;
+  }
+
   voice.pause();
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
+
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
 }
 
 let voicePlayed = false;
 
-function playVoice(now) {
+async function playVoice() {
   if (!soundEnabled || drag || Math.abs(velocity) < 35) return;
   if (voicePlayed) return;
 
-  // 이번 회전에서는 한 번만 재생
   voicePlayed = true;
 
-  function speakOnce() {
-    if (!("speechSynthesis" in window)) return;
+  const generation = soundGeneration;
 
-    const utterance = new SpeechSynthesisUtterance(PHRASE);
-    utterance.lang = "ko-KR";
-    utterance.rate = 1.05;
-    speechSynthesis.speak(utterance);
-  }
+  try {
+    // 사용자 이벤트 안에서 호출될 때 즉시 활성화 요청.
+    // 음성 파일 로딩을 기다린 다음 resume하지 않는 것이 중요.
+    const resumePromise = audioContext.state !== "running"
+      ? audioContext.resume()
+      : Promise.resolve();
 
-  if (audioReady && !audioFailed) {
-    voice.currentTime = 0;
-    voice.playbackRate = Math.min(
+    const [buffer] = await Promise.all([
+      prepareVoice(),
+      resumePromise
+    ]);
+
+    // 기다리는 동안 정지·음소거·새 드래그가 발생했으면 취소
+    if (
+      generation !== soundGeneration ||
+      !soundEnabled ||
+      drag ||
+      Math.abs(velocity) < 35
+    ) {
+      return;
+    }
+
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+
+    source.playbackRate.value = Math.min(
       1.5,
       0.95 + Math.abs(velocity) / 4500
     );
 
-    voice.play().catch(() => {
-      audioFailed = true;
+    source.connect(audioContext.destination);
+    activeSource = source;
 
-      if (soundEnabled && !drag && Math.abs(velocity) >= 35) {
-        speakOnce();
+    source.onended = () => {
+      source.disconnect();
+
+      if (activeSource === source) {
+        activeSource = null;
       }
-    });
-  } else {
-    speakOnce();
+    };
+
+    source.start();
+    message("");
+  } catch (error) {
+    if (generation !== soundGeneration) return;
+
+    voicePlayed = false;
+    message("音声を再生できませんでした。");
+    console.error("음성 재생 실패:", error);
   }
 }
 
@@ -335,10 +451,16 @@ updateLightButton();
 
 $("sound").onclick = () => {
   soundEnabled = !soundEnabled;
+
   $("sound").textContent = soundEnabled ? "音声 ON" : "音声 OFF";
   $("sound").setAttribute("aria-pressed", String(soundEnabled));
-  if (!soundEnabled) silence();
-  else playVoice(performance.now());
+
+  if (!soundEnabled) {
+    silence();
+  } else {
+    activateAudio();
+    playVoice();
+  }
 };
 
 $("lightToggle").onclick = () => {
@@ -632,7 +754,6 @@ angle %= 360;
       : "回す準備完了";
 
   if (Math.abs(velocity) < 35) silence();
-  else playVoice(now);
 
   drawLights(now);
   requestAnimationFrame(frame);
