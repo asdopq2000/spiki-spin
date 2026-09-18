@@ -163,7 +163,6 @@ button,
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#090914">
-<link rel="preload" href="./voice.mp3" as="audio" type="audio/mpeg">
 </head>
 <body>
 <canvas id="lights" aria-hidden="true"></canvas>
@@ -241,7 +240,6 @@ voice.addEventListener("error", () => {
   audioFailed = true;
 });
 voice.src = "./voice.mp3";
-voice.load();
 
 function message(text) { $("message").textContent = text; }
 
@@ -294,28 +292,35 @@ function playVoice(now) {
   if (!soundEnabled || drag || Math.abs(velocity) < 35) return;
   if (voicePlayed) return;
 
+  // 이번 회전에서는 한 번만 재생
   voicePlayed = true;
 
-  // 미리 로딩됐는지와 관계없이 터치 시점에 재생 요청
-  voice.currentTime = 0;
-  voice.playbackRate = 1;
-  voice.muted = false;
-  voice.volume = 1;
+  function speakOnce() {
+    if (!("speechSynthesis" in window)) return;
 
-  voice.play().then(() => {
-    message("");
-  }).catch(error => {
-    // 다시 잡거나 정지해서 취소된 경우는 정상
-    if (error.name === "AbortError") return;
+    const utterance = new SpeechSynthesisUtterance(PHRASE);
+    utterance.lang = "ko-KR";
+    utterance.rate = 1.05;
+    speechSynthesis.speak(utterance);
+  }
 
-    voicePlayed = false;
+  if (audioReady && !audioFailed) {
+    voice.currentTime = 0;
+    voice.playbackRate = Math.min(
+      1.5,
+      0.95 + Math.abs(velocity) / 4500
+    );
 
-    if (error.name === "NotAllowedError") {
-      message("音声をOFF→ONにして、もう一度回してください。");
-    } else {
-      message("音声ファイルを再生できません: " + error.name);
-    }
-  });
+    voice.play().catch(() => {
+      audioFailed = true;
+
+      if (soundEnabled && !drag && Math.abs(velocity) >= 35) {
+        speakOnce();
+      }
+    });
+  } else {
+    speakOnce();
+  }
 }
 
 function updateLightButton() {
@@ -417,7 +422,9 @@ spinner.addEventListener("pointermove", event => {
 spinner.addEventListener("pointerup", event => {
   if (!drag || event.pointerId !== drag.id) return;
 
+  // 놓는 순간의 마지막 이동까지 반영
   moveWithPointer(event);
+
 
   if (Math.abs(velocity) < 5) velocity = 0;
 
@@ -429,23 +436,8 @@ spinner.addEventListener("pointerup", event => {
     spinner.releasePointerCapture(pointerId);
   }
 
-  // 마우스·펜은 여기서 재생
-  // 터치는 아래 touchend에서 직접 재생
-  if (event.pointerType !== "touch") {
-    playVoice(performance.now());
-  }
-});
-
-// 손가락을 뗀 순간 직접 재생 요청
-document.addEventListener("touchend", event => {
-  if (event.target.closest(
-    "button, input, label, a, select, textarea"
-  )) return;
-
-  if (event.touches.length > 0 || drag) return;
-
   playVoice(performance.now());
-}, { passive: true });
+});
 
 function cancelDrag() {
   if (drag) stop();
@@ -635,6 +627,8 @@ angle %= 360;
       ? `${velocity > 0 ? "右" : "左"}へ · ${Math.round(Math.abs(velocity) / 6)} RPM`
       : "回す準備完了";
 
+  if (Math.abs(velocity) < 35) silence();
+  else playVoice(now);
 
   drawLights(now);
   requestAnimationFrame(frame);
