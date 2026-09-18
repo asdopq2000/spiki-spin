@@ -622,7 +622,6 @@ angle %= 360;
       ? `${velocity > 0 ? "右" : "左"}へ · ${Math.round(Math.abs(velocity) / 6)} RPM`
       : "回す準備完了";
 
-  if (Math.abs(velocity) < 35) silence();
 
   drawLights(now);
   requestAnimationFrame(frame);
