@@ -417,9 +417,7 @@ spinner.addEventListener("pointermove", event => {
 spinner.addEventListener("pointerup", event => {
   if (!drag || event.pointerId !== drag.id) return;
 
-  // 놓는 순간의 마지막 이동까지 반영
   moveWithPointer(event);
-
 
   if (Math.abs(velocity) < 5) velocity = 0;
 
@@ -431,8 +429,23 @@ spinner.addEventListener("pointerup", event => {
     spinner.releasePointerCapture(pointerId);
   }
 
-  playVoice(performance.now());
+  // 마우스·펜은 여기서 재생
+  // 터치는 아래 touchend에서 직접 재생
+  if (event.pointerType !== "touch") {
+    playVoice(performance.now());
+  }
 });
+
+// 손가락을 뗀 순간 직접 재생 요청
+document.addEventListener("touchend", event => {
+  if (event.target.closest(
+    "button, input, label, a, select, textarea"
+  )) return;
+
+  if (event.touches.length > 0 || drag) return;
+
+  playVoice(performance.now());
+}, { passive: true });
 
 function cancelDrag() {
   if (drag) stop();
