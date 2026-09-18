@@ -163,6 +163,7 @@ button,
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#090914">
+<link rel="preload" href="./voice.mp3" as="audio" type="audio/mpeg">
 </head>
 <body>
 <canvas id="lights" aria-hidden="true"></canvas>
@@ -240,6 +241,7 @@ voice.addEventListener("error", () => {
   audioFailed = true;
 });
 voice.src = "./voice.mp3";
+voice.load();
 
 function message(text) { $("message").textContent = text; }
 
