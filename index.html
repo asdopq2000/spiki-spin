@@ -5,165 +5,35 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title> ｽﾋﾟｷ 回し</title>
 <style>
-  * { box-sizing: border-box; }
-  :root { color-scheme: dark; }
-  body {
-    margin: 0;
-    min-height: 100svh;
-    background: #090914;
-    color: #f7f3ff;
-    font-family: system-ui, sans-serif;
-  }
-  canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  main {
-    position: relative;
-    width: min(740px, 100%);
-    min-height: 100svh;
-    margin: auto;
-    padding: 32px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-  }
-  h1 { margin: 0; font-size: clamp(28px, 6vw, 44px); }
-  p { margin: 0; color: #bcb7d2; text-align: center; line-height: 1.6; }
-  .stage {
-    width: 100%;
-    height: clamp(280px, 48svh, 460px);
-    display: grid;
-    place-items: center;
-    perspective: 900px;
-    position: relative;
-  }
-  .stage::before {
-    content: "";
-    position: absolute;
-    bottom: 10%;
-    width: 65%;
-    height: 15%;
-    border-radius: 50%;
-    background: #a145ff25;
-    filter: blur(24px);
-  }
-  #spinner {
-    width: min(70vw, 310px);
-    height: min(70vw, 310px);
-    display: grid;
-    place-items: center;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    will-change: transform;
-    outline-offset: 12px;
-  }
-  #spinner.dragging { cursor: grabbing; }
-  #character {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    filter: drop-shadow(0 12px 24px #0008);
-  }
-  #placeholder {
-    padding: 32px;
-    border: 2px dashed #847397;
-    border-radius: 24px;
-    color: #d9caeb;
-    text-align: center;
-    line-height: 1.8;
-  }
-  [hidden] { display: none !important; }
-  .meter {
-    width: min(340px, 100%);
-    height: 6px;
-    background: #ffffff18;
-    border-radius: 9px;
-    overflow: hidden;
-  }
-  #power {
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, #7af5ed, #cb7bff, #ff7bc1);
-  }
-  #status { font-variant-numeric: tabular-nums; min-height: 26px; }
-  .controls {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  button, .file-button {
-    font: inherit;
-    font-size: 14px;
-    border: 1px solid #ffffff25;
-    border-radius: 12px;
-    background: #222033;
-    color: white;
-    padding: 12px 16px;
-    cursor: pointer;
-  }
-  /* 마우스를 사용하는 기기에서만 hover 효과 */
-@media (hover: hover) and (pointer: fine) {
-  button:hover,
-  .file-button:hover {
-    background: #36304c;
-  }
-}
-
-/* 누르고 있는 동안만 색상 변경 */
-button:active,
-.file-button:active {
-  background: #36304c;
-}
-  .file-button { position: relative; overflow: hidden; }
-  .file-button input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    width: 100%;
-    cursor: pointer;
-  }
-  .note { font-size: 14px; max-width: 520px; }
-  #message { color: #ead2ff; font-size: 14px; }
-  html, body {
-  touch-action: none;
-  overscroll-behavior: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-#spinner,
-#spinner:focus,
-#spinner:focus-visible {
-  outline: none;
-}
-.file-button {
-  display: none;
-}
-button,
-.file-button,
-#spinner {
-  -webkit-tap-highlight-color: transparent;
-}
-#lightToggle,
-#sound {
-  width: 100px;
-  padding: 12px 10px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-#character {
-  -webkit-filter: none !important;
-  filter: none !important;
-}
+* { box-sizing: border-box; }
+:root { color-scheme: dark; }
+body { margin: 0; min-height: 100svh; background: #090914; color: #f7f3ff; font-family: system-ui, sans-serif; }
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+main { position: relative; width: min(740px,100%); min-height: 100svh; margin: auto; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+h1 { margin: 0; font-size: clamp(28px,6vw,44px); }
+p { margin: 0; color: #bcb7d2; text-align: center; line-height: 1.6; }
+.stage { width: 100%; height: clamp(280px,48svh,460px); display: grid; place-items: center; perspective: 900px; position: relative; }
+.stage::before { content: ""; position: absolute; bottom: 10%; width: 65%; height: 15%; border-radius: 50%; background: #a145ff25; filter: blur(24px); }
+#spinner { width: min(70vw,310px); height: min(70vw,310px); display: grid; place-items: center; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; }
+#spinner.dragging { cursor: grabbing; }
+#character { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; -webkit-filter: none !important; filter: none !important; }
+#placeholder { padding: 32px; border: 2px dashed #847397; border-radius: 24px; color: #d9caeb; text-align: center; line-height: 1.8; }
+[hidden] { display: none !important; }
+.meter { width: min(340px,100%); height: 6px; background: #ffffff18; border-radius: 9px; overflow: hidden; }
+#power { height: 100%; width: 0; background: linear-gradient(90deg,#7af5ed,#cb7bff,#ff7bc1); }
+#status { font-variant-numeric: tabular-nums; min-height: 26px; }
+.controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+button,.file-button { font: inherit; font-size: 14px; border: 1px solid #ffffff25; border-radius: 12px; background: #222033; color: white; padding: 12px 16px; cursor: pointer; }
+@media (hover:hover) and (pointer:fine) { button:hover,.file-button:hover { background: #36304c; } }
+button:active,.file-button:active { background: #36304c; }
+.file-button { position: relative; overflow: hidden; display: none; }
+.file-button input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.note { font-size: 14px; max-width: 520px; }
+#message { color: #ead2ff; font-size: 14px; }
+html,body { touch-action: none; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+#spinner,#spinner:focus,#spinner:focus-visible { outline: none; }
+button,.file-button,#spinner { -webkit-tap-highlight-color: transparent; }
+#lightToggle,#sound { width: 100px; padding: 12px 10px; flex-shrink: 0; white-space: nowrap; }
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#090914">
@@ -171,592 +41,314 @@ button,
 <body>
 <canvas id="lights" aria-hidden="true"></canvas>
 <main>
-  <h1>ｽﾋﾟｷ 回し</h1>
-  <p>押したまま左右にドラッグして、離してみてください。</p>
-
-  <div class="stage">
-    <div id="spinner" tabindex="0" role="button"
-         aria-label="스피키 돌리기. 좌우로 드래그하거나 방향키를 누르세요.">
-      <img id="character" alt="스피키" draggable="false" hidden>
-      <div id="placeholder">사진을 넣으면<br>스피키가 여기 나타나요</div>
-    </div>
-  </div>
-
-  <p id="status">回す準備完了</p>
-  <div class="meter"><div id="power"></div></div>
-
-  <div class="controls">
-    <label class="file-button">
-      사진 선택
-      <input id="imageFile" type="file" accept="image/*" aria-label="사진 선택">
-    </label>
-    <label class="file-button">
-      음성 선택
-      <input id="audioFile" type="file" accept="audio/*" aria-label="음성 선택">
-    </label>
-    <button id="sound" aria-pressed="true">音声 ON</button>
-    <button id="lightToggle" aria-pressed="true">ライト ON</button>
-    <button id="stop">止める</button>
-  </div>
-
-  <p class="note">速く引っ張るほど勢いよく回ります。<br>
-    キーボードの ← → でも回転・Spaceで停止
-  </p>
-  <p id="message" role="status"></p>
+<h1>ｽﾋﾟｷ 回し</h1>
+<p>押したまま左右にドラッグして、離してみてください。</p>
+<div class="stage"><div id="spinner" tabindex="0" role="button" aria-label="스피키 돌리기. 좌우로 드래그하거나 방향키를 누르세요.">
+<img id="character" alt="스피키" draggable="false" hidden>
+<div id="placeholder">사진을 넣으면<br>스피키가 여기 나타나요</div>
+</div></div>
+<p id="status">回す準備完了</p>
+<div class="meter"><div id="power"></div></div>
+<div class="controls">
+<label class="file-button">사진 선택<input id="imageFile" type="file" accept="image/*" aria-label="사진 선택"></label>
+<label class="file-button">음성 선택<input id="audioFile" type="file" accept="audio/*" aria-label="음성 선택"></label>
+<button id="sound" aria-pressed="true">音声 ON</button>
+<button id="lightToggle" aria-pressed="true">ライト ON</button>
+<button id="stop">止める</button>
+</div>
+<p class="note">速く引っ張るほど勢いよく回ります。<br>キーボードの ← → でも回転・Spaceで停止</p>
+<p id="message" role="status"></p>
 </main>
-
 <script>
 const $ = id => document.getElementById(id);
-const spinner = $("spinner");
-const character = $("character");
-const canvas = $("lights");
-const ctx = canvas.getContext("2d");
-
-// 조절 가능한 값
-const MAX_SPEED = 2400; // 최대 초당 회전각
-const FRICTION = 0.2;  // 클수록 빨리 멈춤
-const FORCE = 1.5;      // 드래그 힘 배율
-const PHRASE = "스피키 네르지 마세요";
-
-let angle = 0;
-let velocity = 0;
-let drag = null;
+const spinner = $("spinner"), character = $("character");
+const canvas = $("lights"), ctx = canvas.getContext("2d");
+const MAX_SPEED = 2400, FRICTION = 0.2, DRAG_TURNS = 1;
+let angle = 0, velocity = 0, drag = null;
 let soundEnabled = true;
 let lightsEnabled = !matchMedia("(prefers-reduced-motion: reduce)").matches;
 let lastFrame = performance.now();
-let lastSpeech = -Infinity;
-let imageURL = null;
-let audioURL = null;
+let imageURL = null, audioURL = null;
 let width = innerWidth, height = innerHeight;
+function message(text) { $("message").textContent = text; }
 
+// HTMLAudioElement performs pitch-preserving rate changes.
+// Web Audio is used ONLY as a silent output gate while the finger is down.
 const voice = new Audio();
 voice.preload = "auto";
 voice.loop = false;
-let audioReady = false;
-let audioFailed = false;
-let audioPending = false;
-
-voice.addEventListener("canplay", () => {
-  audioReady = true;
-});
-voice.addEventListener("error", () => {
-  audioReady = false;
-  audioFailed = true;
-});
+voice.preservesPitch = true;
+if ("webkitPreservesPitch" in voice) voice.webkitPreservesPitch = true;
 voice.src = "./voice.mp3";
+let audioContext = null, mediaSource = null, outputGain = null;
+let soundGeneration = 0, voicePlayed = false, audioBusy = false;
 
-const AudioContextClass =
-  window.AudioContext || window.webkitAudioContext;
-
-const audioContext = new AudioContextClass();
-
-let activeSource = null;
-let soundGeneration = 0;
-let bufferedURL = "";
-let bufferPromise = null;
-
-// 음성을 미리 내려받고 재생 가능한 형태로 변환
-function prepareVoice() {
-  const url = voice.src;
-
-  if (bufferPromise && bufferedURL === url) {
-    return bufferPromise;
-  }
-
-  bufferedURL = url;
-
-  const pending = fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`음성 파일 HTTP ${response.status}`);
+function ensureAudioGraph() {
+  if (audioContext) return;
+  const Context = window.AudioContext || window.webkitAudioContext;
+  if (!Context) throw new Error("Web Audio is unavailable");
+  audioContext = new Context();
+  outputGain = audioContext.createGain();
+  outputGain.gain.value = 0;
+  mediaSource = audioContext.createMediaElementSource(voice);
+  mediaSource.connect(outputGain);
+  outputGain.connect(audioContext.destination);
+}
+function gate(value) {
+  if (outputGain) outputGain.gain.value = value;
+}
+function silence() {
+  soundGeneration++;
+  gate(0);
+  voice.pause();
+  audioBusy = false;
+}
+function reportAudioError(error, generation) {
+  if (generation !== soundGeneration || error.name === "AbortError") return;
+  gate(0);
+  voice.pause();
+  audioBusy = false;
+  voicePlayed = false;
+  message(`音声エラー: ${error.name || "Error"}`);
+  console.error("Audio playback:", error);
+}
+// Must be called synchronously from the real start/end/key/click event.
+// Never wait for canplay, fetch, or resume before calling voice.play().
+function requestAudio(audible) {
+  const generation = ++soundGeneration;
+  gate(0);
+  try {
+    ensureAudioGraph();
+    gate(0);
+    voice.preservesPitch = true;
+    if ("webkitPreservesPitch" in voice) voice.webkitPreservesPitch = true;
+    voice.playbackRate = audible
+      ? Math.min(1.5, 0.95 + Math.abs(velocity) / 4500)
+      : 1;
+    try { voice.currentTime = 0; } catch {}
+    const resumed = audioContext.state === "running"
+      ? Promise.resolve() : audioContext.resume();
+    const playing = voice.play();
+    audioBusy = true;
+    Promise.all([resumed, playing]).then(() => {
+      if (generation !== soundGeneration) return;
+      if (!soundEnabled || document.hidden) { silence(); return; }
+      if (audible && !drag && Math.abs(velocity) >= 35) {
+        gate(1);
+        message("");
       }
-      return response.arrayBuffer();
-    })
-    .then(data => audioContext.decodeAudioData(data));
-
-  bufferPromise = pending;
-
-  // 실패했다면 다음 조작에서 다시 시도할 수 있도록 함
-  pending.catch(() => {
-    if (bufferPromise === pending) {
-      bufferPromise = null;
-    }
-  });
-
-  return pending;
+      // Priming remains silent until release; it can end naturally.
+    }).catch(error => reportAudioError(error, generation));
+  } catch (error) { reportAudioError(error, generation); }
 }
-
-prepareVoice().catch(console.error);
-
-// 별도 버튼 대신 실제 터치·드래그·키보드 조작에서 활성화
-function activateAudio() {
-  if (!soundEnabled) return;
-
-  if (audioContext.state !== "running") {
-    audioContext.resume().catch(console.error);
-  }
+function primeVoice() {
+  if (soundEnabled) requestAudio(false);
 }
+function playVoice() {
+  if (!soundEnabled || drag || Math.abs(velocity) < 35 || voicePlayed) return;
+  voicePlayed = true;
+  requestAudio(true);
+}
+voice.addEventListener("ended", () => { gate(0); audioBusy = false; });
 
-document.addEventListener("pointerdown", activateAudio, {
-  capture: true,
-  passive: true
-});
-
-document.addEventListener("pointerup", activateAudio, {
-  capture: true,
-  passive: true
-});
-
-// iOS에서 손가락을 놓는 이벤트에서도 직접 활성화 요청
-document.addEventListener("touchend", activateAudio, {
-  capture: true,
-  passive: true
-});
-
-spinner.addEventListener("keydown", event => {
-  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-    activateAudio();
-  }
-}, { capture: true });
-
-function message(text) { $("message").textContent = text; }
-
-character.onload = () => {
-  character.hidden = false;
-  $("placeholder").hidden = true;
-};
-character.onerror = () => {
-  character.hidden = true;
-  $("placeholder").hidden = false;
-  message("스피키 사진을 선택해 주세요.");
-};
+character.onload = () => { character.hidden = false; $("placeholder").hidden = true; };
+character.onerror = () => { character.hidden = true; $("placeholder").hidden = false; message("스피키 사진을 선택해 주세요."); };
 character.src = "./spiki.png";
-
 $("imageFile").onchange = event => {
   const file = event.target.files[0];
   if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    message("이미지 파일을 선택해 주세요.");
-    return;
-  }
+  if (!file.type.startsWith("image/")) { message("이미지 파일을 선택해 주세요."); return; }
   stop();
   if (imageURL) URL.revokeObjectURL(imageURL);
   imageURL = URL.createObjectURL(file);
   character.src = imageURL;
   message("사진을 적용했어요.");
 };
-
 $("audioFile").onchange = event => {
   const file = event.target.files[0];
   if (!file) return;
   silence();
   if (audioURL) URL.revokeObjectURL(audioURL);
   audioURL = URL.createObjectURL(file);
-  audioReady = false;
-  audioFailed = false;
   voice.src = audioURL;
   voice.load();
+  voicePlayed = false;
   message("음성을 선택했어요. 다시 돌리면 재생돼요.");
 };
-
-function silence() {
-  // 로딩 중인 이전 재생 요청도 취소
-  soundGeneration++;
-
-  if (activeSource) {
-    activeSource.onended = null;
-
-    try {
-      activeSource.stop();
-    } catch {}
-
-    activeSource.disconnect();
-    activeSource = null;
-  }
-
-  voice.pause();
-
-  if ("speechSynthesis" in window) {
-    speechSynthesis.cancel();
-  }
-}
-
-let voicePlayed = false;
-
-async function playVoice() {
-  if (!soundEnabled || drag || Math.abs(velocity) < 35) return;
-  if (voicePlayed) return;
-
-  voicePlayed = true;
-
-  const generation = soundGeneration;
-
-  try {
-    // 사용자 이벤트 안에서 호출될 때 즉시 활성화 요청.
-    // 음성 파일 로딩을 기다린 다음 resume하지 않는 것이 중요.
-    const resumePromise = audioContext.state !== "running"
-      ? audioContext.resume()
-      : Promise.resolve();
-
-    const [buffer] = await Promise.all([
-      prepareVoice(),
-      resumePromise
-    ]);
-
-    // 기다리는 동안 정지·음소거·새 드래그가 발생했으면 취소
-    if (
-      generation !== soundGeneration ||
-      !soundEnabled ||
-      drag ||
-      Math.abs(velocity) < 35
-    ) {
-      return;
-    }
-
-    const source = audioContext.createBufferSource();
-    source.buffer = buffer;
-
-    source.playbackRate.value = Math.min(
-      1.5,
-      0.95 + Math.abs(velocity) / 4500
-    );
-
-    source.connect(audioContext.destination);
-    activeSource = source;
-
-    source.onended = () => {
-      source.disconnect();
-
-      if (activeSource === source) {
-        activeSource = null;
-      }
-    };
-
-    source.start();
-    message("");
-  } catch (error) {
-    if (generation !== soundGeneration) return;
-
-    voicePlayed = false;
-    message("音声を再生できませんでした。");
-    console.error("음성 재생 실패:", error);
-  }
-}
-
 function updateLightButton() {
   $("lightToggle").textContent = lightsEnabled ? "ライト ON" : "ライト OFF";
   $("lightToggle").setAttribute("aria-pressed", String(lightsEnabled));
 }
 updateLightButton();
-
 $("sound").onclick = () => {
   soundEnabled = !soundEnabled;
-
   $("sound").textContent = soundEnabled ? "音声 ON" : "音声 OFF";
   $("sound").setAttribute("aria-pressed", String(soundEnabled));
-
-  if (!soundEnabled) {
-    silence();
-  } else {
-    activateAudio();
-    playVoice();
+  if (!soundEnabled) silence();
+  else {
+    voicePlayed = false;
+    if (!drag && Math.abs(velocity) >= 35) playVoice();
+    else primeVoice();
   }
 };
+$("lightToggle").onclick = () => { lightsEnabled = !lightsEnabled; updateLightButton(); };
 
-$("lightToggle").onclick = () => {
-  lightsEnabled = !lightsEnabled;
-  updateLightButton();
-};
-
-function releaseCapture() {
-  if (drag && spinner.hasPointerCapture(drag.id)) {
-    spinner.releasePointerCapture(drag.id);
+function clearDrag() {
+  const previous = drag;
+  drag = null;
+  spinner.classList.remove("dragging");
+  if (previous?.kind === "pointer" && spinner.hasPointerCapture(previous.id)) {
+    spinner.releasePointerCapture(previous.id);
   }
 }
-
 function stop() {
-  releaseCapture();
-  drag = null;
-  velocity = 0;
-  angle = 0;
-  spinner.classList.remove("dragging");
+  clearDrag();
+  velocity = 0; angle = 0;
+  spinner.style.transform = "rotateY(0deg)";
   silence();
+  voicePlayed = false;
 }
 $("stop").onclick = stop;
-
-const DRAG_TURNS = 1;
-
-function moveWithPointer(event) {
-  if (!drag || event.pointerId !== drag.id) return;
-
-  const now = performance.now();
-  const dx = event.clientX - drag.lastX;
-
-  if (dx === 0) return;
-
-  const dt = Math.max(
-    (now - drag.lastTime) / 1000,
-    0.001
-  );
-
-  const degreesPerPixel =
-    360 * DRAG_TURNS / window.innerWidth;
-
-  const deltaAngle = dx * degreesPerPixel;
-  const handSpeed = Math.abs(deltaAngle) / dt;
-
-  // 움직인 거리에 비례하며, 빠르게 움직일수록 힘 증가
-  const speedBonus = Math.min(2, handSpeed / 720);
-  const addedSpeed = deltaAngle * (1.5 + speedBonus);
-
-  velocity = Math.max(
-    -MAX_SPEED,
-    Math.min(MAX_SPEED, velocity + addedSpeed)
-  );
-
-  drag.lastX = event.clientX;
-  drag.lastTime = now;
+function isControl(target) {
+  return target instanceof Element && target.closest("button, input, label, a, select, textarea");
 }
-
-document.addEventListener("pointerdown", event => {
-  if (event.target.closest(
-    "button, input, label, a, select, textarea"
-  )) return;
-
-  if (drag || !event.isPrimary || event.button !== 0) return;
-
-  event.preventDefault();
-  spinner.focus({ preventScroll: true });
-
+function beginDrag(kind, id, x) {
   silence();
   voicePlayed = false;
-
-  drag = {
-    id: event.pointerId,
-    lastX: event.clientX,
-    lastTime: performance.now()
-  };
-
-  spinner.setPointerCapture(event.pointerId);
+  drag = { kind, id, lastX: x, lastTime: performance.now() };
   spinner.classList.add("dragging");
-}, { passive: false });
-
-spinner.addEventListener("pointermove", event => {
-  moveWithPointer(event);
-});
-
-spinner.addEventListener("pointerup", event => {
-  if (!drag || event.pointerId !== drag.id) return;
-
-  // 놓는 순간의 마지막 이동까지 반영
-  moveWithPointer(event);
-
-
-  if (Math.abs(velocity) < 5) velocity = 0;
-
-  const pointerId = drag.id;
-  drag = null;
-  spinner.classList.remove("dragging");
-
-  if (spinner.hasPointerCapture(pointerId)) {
-    spinner.releasePointerCapture(pointerId);
-  }
-
-  playVoice(performance.now());
-});
-
-function cancelDrag() {
-  if (drag) stop();
+  // Native touchstart is used on touchscreens, before any asynchronous work.
+  primeVoice();
+  spinner.focus({ preventScroll: true });
 }
-spinner.addEventListener("pointercancel", cancelDrag);
-spinner.addEventListener("lostpointercapture", cancelDrag);
-window.addEventListener("blur", stop);
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) stop();
-});
+function moveDrag(x) {
+  if (!drag) return;
+  const now = performance.now(), dx = x - drag.lastX;
+  if (dx === 0) return;
+  const dt = Math.max((now - drag.lastTime) / 1000, 0.001);
+  const deltaAngle = dx * 360 * DRAG_TURNS / innerWidth;
+  const handSpeed = Math.abs(deltaAngle) / dt;
+  const addedSpeed = deltaAngle * (1.5 + Math.min(2, handSpeed / 720));
+  velocity = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velocity + addedSpeed));
+  drag.lastX = x; drag.lastTime = now;
+}
+function endDrag(x) {
+  moveDrag(x);
+  clearDrag();
+  if (Math.abs(velocity) < 5) velocity = 0;
+  if (Math.abs(velocity) >= 35) playVoice();
+  else silence();
+}
 
+// Touch gets its own native event path. No synthetic click or extra tap required.
+const nativeTouch = "ontouchstart" in window;
+document.addEventListener("touchstart", event => {
+  if (drag || event.touches.length !== 1 || isControl(event.target)) return;
+  const touch = event.changedTouches[0];
+  beginDrag("touch", touch.identifier, touch.clientX);
+}, { passive: true });
+document.addEventListener("touchmove", event => {
+  if (drag?.kind !== "touch") return;
+  const touch = Array.from(event.changedTouches).find(t => t.identifier === drag.id);
+  if (touch) moveDrag(touch.clientX);
+}, { passive: true });
+document.addEventListener("touchend", event => {
+  if (drag?.kind !== "touch") return;
+  const touch = Array.from(event.changedTouches).find(t => t.identifier === drag.id);
+  if (touch) endDrag(touch.clientX);
+}, { passive: true });
+document.addEventListener("touchcancel", event => {
+  if (drag?.kind === "touch" && Array.from(event.changedTouches).some(t => t.identifier === drag.id)) stop();
+}, { passive: true });
+
+// Mouse / pen use pointer capture. Touch pointer events must not start a second drag.
+document.addEventListener("pointerdown", event => {
+  if (nativeTouch && event.pointerType === "touch") return;
+  if (drag || !event.isPrimary || event.button !== 0 || isControl(event.target)) return;
+  if (event.pointerType === "mouse") event.preventDefault();
+  beginDrag("pointer", event.pointerId, event.clientX);
+  spinner.setPointerCapture(event.pointerId);
+}, { passive: false });
+spinner.addEventListener("pointermove", event => {
+  if (drag?.kind === "pointer" && event.pointerId === drag.id) moveDrag(event.clientX);
+});
+spinner.addEventListener("pointerup", event => {
+  if (drag?.kind === "pointer" && event.pointerId === drag.id) endDrag(event.clientX);
+});
+function cancelPointer(event) {
+  if (drag?.kind === "pointer" && event.pointerId === drag.id) stop();
+}
+spinner.addEventListener("pointercancel", cancelPointer);
+spinner.addEventListener("lostpointercapture", cancelPointer);
+window.addEventListener("blur", stop);
+document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
 spinner.addEventListener("keydown", event => {
   if (!["ArrowLeft", "ArrowRight", " "].includes(event.key)) return;
-
   event.preventDefault();
-
-  if (event.key === " ") {
-    stop();
-    return;
-  }
-
-  // 길게 누를 때 발생하는 자동 반복 입력은 무시
+  if (event.key === " ") { stop(); return; }
   if (drag) return;
-
   const direction = event.key === "ArrowLeft" ? -1 : 1;
-
-  velocity = Math.max(
-    -MAX_SPEED,
-    Math.min(MAX_SPEED, velocity + direction * 550)
-  );
-
-  // 방향키를 새로 누를 때마다 음성도 처음부터 재생
-  if (!event.repeat) {
-  silence();
-  voice.currentTime = 0;
-  voicePlayed = false;
-  playVoice(performance.now());
-}
+  velocity = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, velocity + direction * 550));
+  if (!event.repeat) { silence(); voicePlayed = false; playVoice(); }
 });
-
 function resize() {
-  width = innerWidth;
-  height = innerHeight;
+  width = innerWidth; height = innerHeight;
   const dpr = Math.min(devicePixelRatio || 1, 2);
-  canvas.width = Math.round(width * dpr);
-  canvas.height = Math.round(height * dpr);
+  canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 window.addEventListener("resize", resize);
 resize();
-
-// 규칙적인 밝기 점멸 대신 부드럽게 움직이는 빛
-const dots = Array.from({ length: 65 }, (_, i) => ({
-  phase: i * 2.39996,
-  radius: 0.2 + (i % 13) / 15,
-  size: 1.5 + (i % 4),
-  hue: (i * 47) % 360
-}));
-
 function drawLights(now) {
   ctx.clearRect(0, 0, width, height);
-
   const intensity = Math.min(Math.abs(velocity) / 850, 1);
-
-  if (!lightsEnabled || intensity < 0.01) {
-    character.style.filter = "drop-shadow(0 12px 24px #0008)";
-    return;
-  }
-
+  if (!lightsEnabled || intensity < 0.01) return;
   const rotation = angle * Math.PI / 180;
   const rect = spinner.parentElement.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top + rect.height / 2;
-
+  const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
   const hue = ((angle % 360) + 360) % 360;
-  const pulse = 0.9 + 0.1 * Math.sin(now / 1100);
-  const glow = intensity * pulse;
-
-  // 누끼 윤곽을 따라 조명과 같은 색으로 발광
-  character.style.filter = `
-  brightness(${1 + glow * 0.65})
-  saturate(${1 + glow * 0.9})
-  drop-shadow(0 0 ${6 + glow * 8}px
-    hsla(${hue}, 100%, 80%, ${glow * 0.95}))
-  drop-shadow(0 0 ${18 + glow * 22}px
-    hsla(${hue}, 100%, 65%, ${glow * 0.85}))
-  drop-shadow(0 0 ${35 + glow * 35}px
-    hsla(${(hue + 100) % 360}, 100%, 60%, ${glow * 0.65}))
-`;
-
-  // 가장자리가 서서히 사라지는 타원형 빛
+  const glow = intensity * (0.9 + 0.1 * Math.sin(now / 1100));
   function wash(x, y, rx, ry, color, opacity) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(rx, ry);
-
+    ctx.save(); ctx.translate(x, y); ctx.scale(rx, ry);
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
-    gradient.addColorStop(0, `hsla(${color}, 95%, 72%, ${opacity})`);
-    gradient.addColorStop(0.35, `hsla(${color}, 95%, 64%, ${opacity * 0.65})`);
-    gradient.addColorStop(0.7, `hsla(${color}, 95%, 58%, ${opacity * 0.2})`);
-    gradient.addColorStop(1, `hsla(${color}, 95%, 55%, 0)`);
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(-1, -1, 2, 2);
-    ctx.restore();
+    gradient.addColorStop(0, `hsla(${color},95%,72%,${opacity})`);
+    gradient.addColorStop(0.35, `hsla(${color},95%,64%,${opacity * 0.65})`);
+    gradient.addColorStop(0.7, `hsla(${color},95%,58%,${opacity * 0.2})`);
+    gradient.addColorStop(1, `hsla(${color},95%,55%,0)`);
+    ctx.fillStyle = gradient; ctx.fillRect(-1, -1, 2, 2); ctx.restore();
   }
-
-  ctx.save();
-  ctx.globalCompositeOperation = "screen";
-
-  // 스피키 뒤쪽에 퍼지는 은은한 색광
-  wash(
-    cx, cy,
-    Math.min(width * 0.65, 580),
-    Math.min(height * 0.55, 440),
-    hue, glow * 0.13
-  );
-
-  const reach = Math.min(width * 0.48, 460);
-
+  ctx.save(); ctx.globalCompositeOperation = "screen";
+  wash(cx, cy, Math.min(width * 0.65,580), Math.min(height * 0.55,440), hue, glow * 0.13);
+  const reach = Math.min(width * 0.48,460);
   for (let i = 0; i < 5; i++) {
     const phase = rotation + i * Math.PI * 2 / 5;
-
-    // Y축 주변 회전: 앞쪽에서는 넓고 밝고,
-    // 뒤쪽에서는 작고 어두워짐
-    const depth = Math.cos(phase);
-    const front = (depth + 1) / 2;
-    const perspective = 0.75 + front * 0.5;
-    const color = (hue + i * 32) % 360;
-
+    const depth = Math.cos(phase), front = (depth + 1) / 2;
+    const perspective = 0.75 + front * 0.5, color = (hue + i * 32) % 360;
     const targetX = cx + Math.sin(phase) * reach * perspective;
-    const targetY = cy + depth * Math.min(height * 0.2, 150);
-    const spread = Math.min(width * 0.24, 190) * perspective;
+    const targetY = cy + depth * Math.min(height * 0.2,150);
+    const spread = Math.min(width * 0.24,190) * perspective;
     const brightness = glow * (0.07 + front * 0.08);
-
-    // 가는 선 대신 부드러운 빛 덩어리를 겹쳐
-    // 넓게 퍼지는 조명 기둥을 만듦
     for (let j = 0; j < 12; j++) {
-      const t = j / 11;
-      const x = cx + (targetX - cx) * t;
-      const y = cy + (targetY - cy) * t;
-      const radius = spread * (0.38 + t * 0.85);
-
-      // 양 끝이 자연스럽게 사라져 점처럼 보이지 않음
-      const fade = Math.sin(Math.PI * t);
-
-      wash(
-        x, y,
-        radius,
-        radius * 0.85,
-        color,
-        brightness * fade * 0.32
-      );
+      const t = j / 11, radius = spread * (0.38 + t * 0.85);
+      wash(cx + (targetX-cx)*t, cy + (targetY-cy)*t, radius, radius*0.85, color, brightness*Math.sin(Math.PI*t)*0.32);
     }
-
-    // 벽과 바닥에 번지는 넓은 조명
-    wash(
-      targetX, targetY,
-      spread * 1.5,
-      spread * 0.85,
-      color,
-      brightness * 0.65
-    );
+    wash(targetX,targetY,spread*1.5,spread*0.85,color,brightness*0.65);
   }
-
   ctx.restore();
 }
-
 function frame(now) {
-  const dt = Math.min((now - lastFrame) / 1000, 0.05);
-  lastFrame = now;
-
+  const dt = Math.min((now - lastFrame) / 1000,0.05); lastFrame = now;
   const decay = Math.exp(-FRICTION * dt);
-
-angle += velocity * (1 - decay) / FRICTION;
-velocity *= decay;
-
-if (Math.abs(velocity) < 5) velocity = 0;
-
-angle %= 360;
-
+  angle += velocity * (1-decay) / FRICTION; velocity *= decay;
+  if (Math.abs(velocity) < 5) velocity = 0;
+  angle %= 360;
   spinner.style.transform = `rotateY(${angle}deg)`;
-  $("power").style.width = `${Math.abs(velocity) / MAX_SPEED * 100}%`;
-  $("status").textContent = drag
-    ? "離すとくるくる!"
-    : velocity
-      ? `${velocity > 0 ? "右" : "左"}へ · ${Math.round(Math.abs(velocity) / 6)} RPM`
-      : "回す準備完了";
-
-  if (Math.abs(velocity) < 35) silence();
-
-  drawLights(now);
-  requestAnimationFrame(frame);
+  $("power").style.width = `${Math.abs(velocity)/MAX_SPEED*100}%`;
+  $("status").textContent = drag ? "離すとくるくる!" : velocity
+    ? `${velocity > 0 ? "右" : "左"}へ · ${Math.round(Math.abs(velocity)/6)} RPM` : "回す準備完了";
+  // Do not cancel the silent preparation while the finger is still down.
+  if (!drag && Math.abs(velocity) < 35 && audioBusy) silence();
+  drawLights(now); requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 </script>
